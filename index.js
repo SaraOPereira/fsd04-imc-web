@@ -1,14 +1,26 @@
 function buildCalculateImc() {
     var heightElem = document.querySelector('#altura');
     var weightElem = document.querySelector('#peso');
-    console.log(heightElem);
-    console.log(weightElem);
 
     return function() {
         var height = heightElem.value;
         var weight = weightElem.value;
 
-        doCalculateImc(height, weight);
+        var body = {
+            "height": height,
+            "weight": weight
+        };
+
+        var rq = new XMLHttpRequest();
+        rq.onreadystatechange = function(){
+            var response = JSON.parse(rq.responseText);
+            document.querySelector('#imc').innerHTML = response.imcDescription;
+        };
+
+        rq.open('POST', 'http://127.0.0.1:8080/imc/calculate', true);
+        rq.setRequestHeader("Access-Control-Allow-Origin", "*");
+        rq.setRequestHeader("Content-type", "application/json");
+        rq.send(JSON.stringify(body));
     }
 }
 
@@ -32,8 +44,6 @@ function translateImcToText(imc) {
 }
 
 window.onload = function(evt) {
-    console.log(evt);
-
     var btn = document.querySelector('#main-action');
     btn.addEventListener('click', buildCalculateImc());
 }
